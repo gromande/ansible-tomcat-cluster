@@ -1,0 +1,6 @@
+[tomcat-servers]
+ansible1.groman.com
+ansible2.groman.com
+
+[lbservers]
+ansible.groman.com

@@ -1,0 +1,45 @@
+global
+    log         127.0.0.1 local2 
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        root
+    group       root
+    daemon
+
+defaults
+    mode                    {{ mode }}
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option                  http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+frontend http-in
+    bind *:{{ listenport }}
+    reqadd X-Forwarded-Proto:\ http
+    default_backend app
+
+backend app
+    balance     {{ balance }}
+    {% if affinity_enabled  %}
+        cookie SERVERID insert indirect nocache
+    {% endif %}
+    {% for host in groups['tomcat-servers'] %}
+        {% if affinity_enabled  %}
+            server {{ host }} {{ hostvars[host]['ansible_' + iface].ipv4.address }}:{{ httpd_port }} check cookie s{{ loop.index }}
+        {% else %}
+            server {{ host }} {{ hostvars[host]['ansible_' + iface].ipv4.address }}:{{ httpd_port }} check
+        {% endif %}
+    {% endfor %}

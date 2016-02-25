@@ -1,0 +1,35 @@
+---
+# Variables for the HAproxy configuration
+
+# HAProxy supports "http" and "tcp". For SSL, SMTP, etc, use "tcp".
+mode: http
+
+# Port on which HAProxy should listen
+listenport: 80
+
+# Port on which webservers should listen
+httpd_port: 8080
+
+# A name for the proxy daemon, this wil be the suffix in the logs.
+daemonname: ansiblelb
+
+# Balancing Algorithm. Available options:
+# roundrobin, source, leastconn, source, uri
+# (if persistance is required use, "source")
+balance: roundrobin 
+
+# Enable balancing affinity. If set to true the LB
+# will stick to the same tomcat server.
+# The LB will inject a session cookie called SERVERID
+# in the first request.
+affinity_enabled: true
+
+# Ethernet interface on which the tomcat servers should listen
+# Defaults to the first interface. Change this to:
+#
+#  iface: eth1
+#
+# ...to override.
+#
+#iface: '{{ ansible_default_ipv4.interface }}'
+iface: eth1

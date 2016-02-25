@@ -1,0 +1,9 @@
+---
+- name: Deploy webapp
+  copy: src={{war_file}} dest=/usr/share/tomcat/webapps/{{app_context}}.war
+  become: yes
+  become_user: tomcat
+  notify: restart tomcat
+
+- name: Wait for tomcat to start
+  wait_for: port={{http_port}}
