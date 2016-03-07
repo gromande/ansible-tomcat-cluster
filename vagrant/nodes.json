@@ -1,0 +1,22 @@
+{
+  "nodes": {
+    "ansible": {
+      ":node": "ansible",
+      ":ip": "192.168.82.2",
+      ":hostname": "ansible.groman.com",
+      ":memory": 512
+    },
+    "ansible1": {
+      ":node": "ansible1",
+      ":ip": "192.168.82.3",
+      ":hostname": "ansible1.groman.com",
+      ":memory": 1024
+    },
+    "ansible2": {
+      ":node": "ansible2",
+      ":ip": "192.168.82.4",
+      ":hostname": "ansible1.groman.com",
+      ":memory": 1024
+    }
+  }
+}

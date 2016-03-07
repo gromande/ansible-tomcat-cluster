@@ -1,0 +1,44 @@
+# p
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#Parse nodes config file
+nodes_config = (JSON.parse(File.read("nodes.json")))['nodes']
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+ 
+  #config.vm.box = "centos653"
+  config.vm.box = "centos/7"
+  
+  nodes_config.each_with_index do |node, node_index|
+    node_name   = node[0] # name of node
+    node_values = node[1] # content of node
+ 
+    config.vm.define node_name do |config|    
+      #Use default SSH private key for every node
+      config.ssh.insert_key = false
+
+      config.vm.hostname = node_values[':hostname']
+      config.vm.network :private_network, ip: node_values[':ip']
+      
+      config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", node_values[':memory']]
+        vb.customize ["modifyvm", :id, "--name", node_values[':node']]
+      end
+     
+      #Run provisioner at the end, when all nodes are up 
+      if node_index == (nodes_config.size - 1)
+        config.vm.provision "ansible" do |ansible|
+          ansible.limit = "all" 
+          ansible.playbook = "../site.yml"
+          ansible.inventory_path = "../hosts"
+          ansible.host_key_checking = false
+        end
+      end
+
+    end
+  end
+end
