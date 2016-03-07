@@ -1,9 +1,12 @@
 ---
-- name: Deploy webapp
-  copy: src={{war_file}} dest=/usr/share/tomcat/webapps/{{app_context}}.war
-  become: yes
-  become_user: tomcat
-  notify: restart tomcat
+- name: Stop tomcat
+  service: name=tomcat state=stopped
 
-- name: Wait for tomcat to start
-  wait_for: port={{http_port}}
+- name: Copy WAR file
+  copy: src={{war_file}} dest=/usr/share/tomcat/webapps/{{app_context}}.war
+
+- name: Change ownership of WAR file
+  file: path=/usr/share/tomcat/webapps/{{app_context}}.war owner=tomcat group=tomcat state=file
+
+- name: Start tomcat
+  service: name=tomcat state=started
